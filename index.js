@@ -1,5 +1,6 @@
 const MongoClient=require('mongodb').MongoClient;
 const assert =require('assert');
+const dboper=require('./operations');
 
 const url='mongodb://localhost:27017';
 const dbname='conFusion';
@@ -11,28 +12,60 @@ MongoClient.connect(url,(err,client)=>{
     console.log('connected properly to the server');
 
     const db=client.db(dbname);
-    const collection=db.collection('dishes');
 
-    collection.insertOne({"name": "Uthappizza","description":"test"},(err,result)=>{
+    //Now using operations page to access the mongoDB instead of below
+    //mentioned code.............
 
-        assert.equal(err,null);
+    dboper.insertDocument(db,{name:"Hari",description:"try"},'dishes',(result)=>{
 
-        console.log("After insert: \n");
-        console.log(result.ops);
+        console.log('insert document:\n',result.ops);
 
-        collection.find({}).toArray((err,docs)=>{
+        dboper.findDocuments(db,'dishes',(docs)=>{
+            console.log('Find documents: \n',docs);
 
-          assert.equal(err,null);
-          
-          console.log('Found: \n');
-          console.log(docs);
+            dboper.updateDocument(db,{name:'Hari'},{description:'Updated try'},'dishes',(result)=>{
 
-          db.dropCollection('dishes',(err,result)=>{
+             console.log('Updated document:\n',result.result);
+             
+             dboper.findDocuments(db,'dishes',(docs)=>{
+                console.log('Found Documents:\n',docs);
 
-            assert.equal(err,null);
-            client.close();
-          });
+                db.dropCollection('dishes',(result)=>{
+                   console.log('Dropped Collection: ',result); 
+                    client.close();
+                });
+
+
+             });
+             
+            });
+
         });
     });
+
+
+    // const collection=db.collection('dishes');
+
+    // collection.insertOne({"name": "Uthappizza","description":"test"},(err,result)=>{
+
+    //     assert.equal(err,null);
+
+    //     console.log("After insert: \n");
+    //     console.log(result.ops);
+
+    //     collection.find({}).toArray((err,docs)=>{
+
+    //       assert.equal(err,null);
+          
+    //       console.log('Found: \n');
+    //       console.log(docs);
+
+    //       db.dropCollection('dishes',(err,result)=>{
+
+    //         assert.equal(err,null);
+    //         client.close();
+    //       });
+    //     });
+    // });
 
 });
