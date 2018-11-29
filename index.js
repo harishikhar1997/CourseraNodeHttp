@@ -9,7 +9,7 @@ MongoClient.connect(url,(err,client)=>{
 
     assert.equal(err,null);
 
-    console.log('connected properly to the server');
+    console.log('Connected properly to the server');
 
     const db=client.db(dbname);
 
