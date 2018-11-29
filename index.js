@@ -5,9 +5,7 @@ const dboper=require('./operations');
 const url='mongodb://localhost:27017';
 const dbname='conFusion';
 
-MongoClient.connect(url,(err,client)=>{
-
-    assert.equal(err,null);
+MongoClient.connect(url).then((client)=>{
 
     console.log('Connected properly to the server');
 
@@ -16,32 +14,35 @@ MongoClient.connect(url,(err,client)=>{
     //Now using operations page to access the mongoDB instead of below
     //mentioned code.............
 
-    dboper.insertDocument(db,{name:"Hari",description:"try"},'dishes',(result)=>{
+    dboper.insertDocument(db,{name:"Hari",description:"try"},'dishes')
+   .then((result)=>{
 
         console.log('insert document:\n',result.ops);
 
-        dboper.findDocuments(db,'dishes',(docs)=>{
+       return dboper.findDocuments(db,'dishes');
+   })
+        .then((docs)=>{
             console.log('Find documents: \n',docs);
 
-            dboper.updateDocument(db,{name:'Hari'},{description:'Updated try'},'dishes',(result)=>{
+            return dboper.updateDocument(db,{name:'Hari'},{description:'Updated try'},'dishes');
+        })
+        .then((result)=>{
 
              console.log('Updated document:\n',result.result);
              
-             dboper.findDocuments(db,'dishes',(docs)=>{
+             return dboper.findDocuments(db,'dishes');
+        })
+        .then((docs)=>{
                 console.log('Found Documents:\n',docs);
 
-                db.dropCollection('dishes',(result)=>{
+               return db.dropCollection('dishes');
+        })
+        .then((result)=>{
                    console.log('Dropped Collection: ',result); 
-                    client.close();
-                });
+                   return client.close();
+                })
+                .catch((err)=> console.log(err));
 
-
-             });
-             
-            });
-
-        });
-    });
 
 
     // const collection=db.collection('dishes');
@@ -68,4 +69,5 @@ MongoClient.connect(url,(err,client)=>{
     //     });
     // });
 
-});
+})
+.catch((err)=> console.log(err));
